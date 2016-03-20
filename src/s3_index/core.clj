@@ -1,5 +1,7 @@
 (ns s3-index.core
-  (:gen-class))
+  (:gen-class)
+  (require [amazonica.aws.s3]
+           [hiccup.page]))
 
 (defn list-s3
   [request]
@@ -9,6 +11,13 @@
                                            (lazy-seq (list-s3 next-request))
                                            []))))
 
+(defn page
+  [keys]
+  (let [li (fn [key]
+             (let [href (str "https://s3.amazonaws.com/" :bucket "/" key)]
+               [:li [:a {:href href} key]]))]
+    (hiccup.page/html5 [:body [:ul (map li keys)]])))
+
 (defn -main
   [& args]
-  (prn 5))
+  (page (map :key (take 5 (list-s3 {:bucket-name "testing"})))))
