@@ -11,6 +11,10 @@
                                            (lazy-seq (list-all-objects next-request))
                                            []))))
 
+(defn sort-objects
+  [objects]
+  (sort-by :last-modified objects))
+
 (defn page
   [objects]
   (let [li (fn [object]
@@ -20,6 +24,6 @@
 
 (defn -main
   [& args]
-  (let [objects (list-all-objects {:bucket-name "***REMOVED***"})]
+  (let [objects (sort-objects (list-all-objects {:bucket-name "***REMOVED***"}))]
     (doseq [[index partition] (map-indexed vector (partition-all 50 objects))]
       (spit (str "/tmp/page" index ".html") (page partition)))))
