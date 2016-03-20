@@ -3,12 +3,12 @@
   (require [amazonica.aws.s3]
            [hiccup.page]))
 
-(defn list-s3
+(defn list-all-objects
   [request]
   (let [response (amazonica.aws.s3/list-objects request)
         next-request (assoc request :marker (:next-marker response))]
     (concat (:object-summaries response) (if (:truncated? response)
-                                           (lazy-seq (list-s3 next-request))
+                                           (lazy-seq (list-all-objects next-request))
                                            []))))
 
 (defn page
@@ -20,4 +20,6 @@
 
 (defn -main
   [& args]
-  (page (map :key (take 5 (list-s3 {:bucket-name "testing"})))))
+  (let [objects (list-all-objects {:bucket-name "***REMOVED***"})]
+    (doseq [[index partition] (map-indexed vector (partition-all 50 objects))]
+      (spit (str "/tmp/page" index ".html") (page (map :key partition))))))
