@@ -12,14 +12,14 @@
                                            []))))
 
 (defn page
-  [keys]
-  (let [li (fn [key]
-             (let [href (str "https://s3.amazonaws.com/" :bucket "/" key)]
-               [:li [:a {:href href} key]]))]
-    (hiccup.page/html5 [:body [:ul (map li keys)]])))
+  [objects]
+  (let [li (fn [object]
+             (let [src (str "https://s3.amazonaws.com/" (:bucket-name object) "/" (:key object))]
+               [:li [:img {:src src}]]))]
+    (hiccup.page/html5 [:body [:ul (map li objects)]])))
 
 (defn -main
   [& args]
   (let [objects (list-all-objects {:bucket-name "***REMOVED***"})]
     (doseq [[index partition] (map-indexed vector (partition-all 50 objects))]
-      (spit (str "/tmp/page" index ".html") (page (map :key partition))))))
+      (spit (str "/tmp/page" index ".html") (page partition)))))
