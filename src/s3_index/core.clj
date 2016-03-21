@@ -15,15 +15,21 @@
 
 (defn li
   [object]
-  [:li [:img.img-responsive {:src (object-url object)}]])
+  (let [url (object-url object)]
+    [:li.img-li
+     [:img.img-responsive {:src url}]
+     [:div.text-center
+      (:last-modified object)]
+     [:div.text-center
+      [:a {:href url} url]]]))
 
 (defn page
   [index objects]
   (hiccup.page/html5 [:head
                       (hiccup.page/include-css "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css")
                       (hiccup.page/include-css "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css")
-                      (hiccup.page/include-js "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js")
-                      [:style "body { background-color: lightgrey }"]]
+                      [:style "body { background-color: lightgrey }
+                               .img-li { border-bottom: 1px solid black; margin-bottom: 100px }"]]
                      [:body
                       [:nav
                        [:ul.pager
