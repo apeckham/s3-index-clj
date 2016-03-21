@@ -11,19 +11,25 @@
                                            (lazy-seq (list-all-objects next-request))
                                            []))))
 
-(defn sort-objects
-  [objects]
-  (sort-by :last-modified objects))
+(def object-url #(str "https://s3.amazonaws.com/" (:bucket-name %) "/" (:key %)))
 
 (defn page
   [objects]
   (let [li (fn [object]
-             (let [src (str "https://s3.amazonaws.com/" (:bucket-name object) "/" (:key object))]
-               [:li [:img {:src src}]]))]
-    (hiccup.page/html5 [:body [:ul (map li objects)]])))
+             [:li [:img.img-responsive {:src (object-url object)}]])]
+    (hiccup.page/html5 [:head
+                        (hiccup.page/include-css "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css")
+                        (hiccup.page/include-css "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css")
+                        (hiccup.page/include-js "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js")
+                        [:style "body { background-color: lightgrey }"]]
+                       [:body
+                        [:ul.list-unstyled (map li objects)]])))
 
 (defn -main
   [& args]
-  (let [objects (sort-objects (list-all-objects {:bucket-name "***REMOVED***"}))]
-    (doseq [[index partition] (map-indexed vector (partition-all 50 objects))]
-      (spit (str "/tmp/page" index ".html") (page partition)))))
+  (doseq [[index partition] (->> (list-all-objects {:bucket-name "***REMOVED***"})
+                                 #_(sort-by :last-modified)
+                                 (partition-all 50)
+                                 (take 1)
+                                 (map-indexed vector))]
+    (spit (str "/tmp/page" index ".html") (page partition))))
