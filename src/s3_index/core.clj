@@ -25,17 +25,19 @@
 
 (defn page
   [index objects]
-  (hiccup.page/html5 [:head
-                      (hiccup.page/include-css "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css")
-                      (hiccup.page/include-css "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css")
-                      [:style "body { background-color: lightgrey }
+  (let [nav [:nav
+             [:ul.pager
+              (if-not (zero? index) [:li [:a {:href (str "page" (dec index) ".html")} "Previous"]])
+              [:li [:a {:href (str "page" (inc index) ".html")} "Next"]]]]]
+    (hiccup.page/html5 [:head
+                        (hiccup.page/include-css "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css")
+                        (hiccup.page/include-css "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css")
+                        [:style "body { background-color: lightgrey }
                                .img-li { border-bottom: 1px solid black; margin-bottom: 100px }"]]
-                     [:body
-                      [:nav
-                       [:ul.pager
-                        [:li [:a {:href (str "page" (dec index) ".html")} "Previous"]]
-                        [:li [:a {:href (str "page" (inc index) ".html")} "Next"]]]]
-                      [:ul.list-unstyled (map li objects)]]))
+                       [:body
+                        nav
+                        [:ul.list-unstyled (map li objects)]
+                        nav])))
 
 (defn -main
   [& args]
