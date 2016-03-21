@@ -11,11 +11,9 @@
                                            (lazy-seq (list-all-objects next-request))
                                            []))))
 
-(def object-url #(str "https://s3.amazonaws.com/" (:bucket-name %) "/" (:key %)))
-
 (defn li
   [object]
-  (let [url (object-url object)]
+  (let [url (object-url (str "https://s3.amazonaws.com/" (:bucket-name object) "/" (:key object)))]
     [:li.img-li
      [:img.img-responsive {:src url}]
      [:div.text-center
@@ -41,9 +39,8 @@
 
 (defn -main
   [& args]
-  (doseq [[index objects] (->> (list-all-objects {:bucket-name "***REMOVED***"})
-                               #_(sort-by :last-modified)
+  (doseq [[index objects] (->> (list-all-objects {:bucket-name (first args)})
+                               (sort-by :last-modified)
                                (partition-all 50)
-                               (take 1)
                                (map-indexed vector))]
     (spit (str "/tmp/page" index ".html") (page index objects))))
